@@ -66,8 +66,6 @@ cat ${params.vcf}|awk '{print \$1"\\t"\$2}' > ${params.snpdb}
 process STARINDEX {
 memory '50 GB'
 cpus 16
-
-output:
 publishDir path: "${params.starindex}", pattern: '.'
 
 script:
@@ -83,8 +81,6 @@ script:
 process SALMONINDEX {
 memory '50 GB'
 cpus 16
-
-output:
 publishDir path: "${params.salmonindex}", pattern: '.'
 
 script:
@@ -192,12 +188,10 @@ bedtools getfasta -fi !{params.fa} -bed *.bed -name | awk 'BEGIN{FS="::"}{if($1~
 process TE_index{
 memory '50 GB'
 cpus 16
+publishDir path: "${params.TEindex}", pattern: '.'
 
 input:
 path TE_fa
-
-output:
-publishDir path: "${params.TEindex}", pattern: '.'
 
 script:
 
