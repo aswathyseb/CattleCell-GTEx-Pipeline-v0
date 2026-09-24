@@ -1,8 +1,8 @@
 process BQSR{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '36 GB'
-cpus = 8
-time = '1 d'
+memory '36 GB'
+cpus 8
+time '1 d'
 
 publishDir mode: 'copy', path:"${params.workpath}/bqsr_bamlist/", pattern: '*bqsr.bam'
 publishDir mode: 'copy', path:"${params.workpath}/bqsr_bamlist/", pattern: '*bqsr.bai'

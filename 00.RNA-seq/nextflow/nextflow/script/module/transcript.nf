@@ -1,11 +1,11 @@
 process Salmon{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '16 GB'
-cpus = 10
-time = '1 h'
+memory '16 GB'
+cpus 10
+time '1 h'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/transcript_expression/", pattern: '*matrix'
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/transcript_expression/THISTLE", pattern: '*thistle*'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/transcript_expression/" }, pattern: '*matrix'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/transcript_expression/THISTLE" }, pattern: '*thistle*'
   
 input:
 tuple val(sampleID),path(reads)
@@ -29,7 +29,7 @@ salmon quant  \\
 
 
         awk '{ temp = \$4; \$4 = \$5; \$5 = temp; print }' quant.sf > ${sampleID}isoform.matrix
-        ${params.toolpath}/osca-0.46.1-linux-x86_64/osca-0.46.1 --efile ${sampleID}isoform.matrix  --gene-expression --make-bod --out ${sampleID}_thistle
+        ${params.toolpath}/osca-1.22-linux-x86_64/osca --efile ${sampleID}isoform.matrix  --gene-expression --make-bod --out ${sampleID}_thistle
 
 """
 }else {
@@ -43,7 +43,7 @@ salmon quant \\
         -o ./  \\
 
         awk '{ temp = \$4; \$4 = \$5; \$5 = temp; print }' quant.sf > ${sampleID}isoform.matrix
-        ${params.toolpath}/osca-0.46.1-linux-x86_64/osca-0.46.1 --efile ${sampleID}isoform.matrix  --gene-expression --make-bod --out ${sampleID}_thistle
+        ${params.toolpath}/osca-1.22-linux-x86_64/osca --efile ${sampleID}isoform.matrix  --gene-expression --make-bod --out ${sampleID}_thistle
 
 """
         }
@@ -52,11 +52,11 @@ salmon quant \\
 
 process SalmonTE{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '16 GB'
-cpus = 10
-time = '1 h'
+memory '16 GB'
+cpus 10
+time '1 h'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/TE_expression", pattern: '*gz'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/TE_expression" }, pattern: '*gz'
 
 input:
 tuple val(sampleID),path(reads)

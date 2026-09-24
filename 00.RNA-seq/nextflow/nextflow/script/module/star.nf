@@ -5,10 +5,12 @@ memory '80 GB'
 cpus 12
 time '2d'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/alignment/", pattern: '*Log.final.out'
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/alignment/", pattern: '*sortedByCoord.out.bam'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/alignment/" }, pattern: '*Log.final.out'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/alignment/" }, pattern: '*sortedByCoord.out.bam*'
+
 input:
 tuple val(sampleID),path(reads)
+
 output:
 tuple val(sampleID),path('*sortedByCoord.out.bam'), emit: bam
 path('*Log.final.out'), emit: log

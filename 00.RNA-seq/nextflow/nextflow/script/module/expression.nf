@@ -1,9 +1,9 @@
 process GENE_string {
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/gene_expression/", pattern: '*.tsv'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/gene_expression/" }, pattern: '*.tsv'
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '16 GB'
-cpus = 4
-time = '2 h'
+memory '16 GB'
+cpus 4
+time '2 h'
 
 input:
 tuple val(sampleID),path(bam)
@@ -24,13 +24,13 @@ script:
 
 process GENE_feat {
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '8 GB'
-cpus = 4
-time = '1 h'
+memory '8 GB'
+cpus 4
+time '1 h'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/gene_expression/", pattern: '*.summary'
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/gene_expression/", pattern: '*.gz'
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/alignment/", pattern: '*.data'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/gene_expression/" }, pattern: '*.summary'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/gene_expression/" }, pattern: '*.gz'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/alignment/" }, pattern: '*.data'
 input:
 tuple val(sampleID),path(bam)
 output:
@@ -67,13 +67,13 @@ if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 
 process EXON{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '8 GB'
-cpus = 4
-time = '1 h'
+memory '8 GB'
+cpus 4
+time '1 h'
 
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/exon_expression/", pattern: '*.summary'
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/exon_expression/", pattern: '*.gz'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/exon_expression/" }, pattern: '*.summary'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/exon_expression/" }, pattern: '*.gz'
 
 input:
 tuple val(sampleID),path(bam)
@@ -110,11 +110,11 @@ if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 
 process RNA{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '4 GB'
-cpus = 2
-time = '1d'
+memory '4 GB'
+cpus 2
+time '1d'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/rna_stablity_HTseq/", pattern: '*'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/rna_stablity_HTseq/" }, pattern: '*'
 
 input:
 tuple val(sampleID),path(bam)
@@ -131,11 +131,11 @@ htseq-count -m union -f bam -t intron -s no $bam -n 2 ${params.intron} > ${sampl
 
 process enhancer{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '8 GB'
-cpus = 4
-time = '1 h'
+memory '8 GB'
+cpus 4
+time '1 h'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/enhancer/", pattern: '*'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/enhancer/" }, pattern: '*'
 
 input:
 tuple val(sampleID),path(bam)
@@ -166,9 +166,9 @@ if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 
 process Bedgraph{
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '16 GB'
-cpus = 4
-time = '1 h'
+memory '16 GB'
+cpus 4
+time '1 h'
 
 publishDir mode: 'copy', path:"${params.outpath}/wig/", pattern: '*.wig'
 publishDir mode: 'copy', path:"${params.workpath}/depar2/", pattern: '*mapped_reads.txt'

@@ -3,7 +3,7 @@ conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
 memory '16 GB'
 cpus 4
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/RNAediting/", pattern: '*gz' 
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/RNAediting/" }, pattern: '*gz' 
 input: 
 tuple val(sampleID),path(bam)
 path bai
@@ -14,7 +14,7 @@ path("*gz")
 
 script:
 
-if (file("${params.input}/${sample}/${sampleID}*.gz").size() > 1) {
+if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
 	samtools view -@ ${params.nthreads} -b -h $bam ${params.chrinfo}  > ${sampleID}chr.bam
 	samtools sort -@ ${params.nthreads} -o ${sampleID}chr.sorted.bam  ${sampleID}chr.bam

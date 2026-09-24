@@ -1,11 +1,11 @@
 process LNCRNA {
 conda '/home/huicongz/miniconda3/envs/nf-farmgtex/'
-memory = '16 GB'
+memory '16 GB'
 cache 'lenient'
-cpus = 4
-time = '6 h'
+cpus 4
+time '6 h'
 
-publishDir mode: 'copy', path:"${params.outpath}/${sampleID}/lncRNA/", pattern: '*3.gtf'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/lncRNA/" }, pattern: '*3.gtf'
 input:
 tuple val(sampleID),path(bam)
 output:
