@@ -140,10 +140,12 @@ STAR/Salmon/featureCounts do not need it. `enhancer(STAR.out.bam)` in `rna.nf` i
 pixi run nextflow run script/prepare.nf -c nextflow.config -resume -w ./work
 ```
 
+
 `-w` is Nextflow’s scratch directory. It is not `params.workpath`. If you omit `-w`, Nextflow creates `./work` in the launch directory.
 
 The `prepare.nf` calls `fastadic`, `chr`, `snpdb`, `RNAstablity`, `UTR`, `STARINDEX`, and `SALMONINDEX`. 
 
+Salmon indexing is modified in `prepare.nf` to match salmon 2.0. See below.
 
 ### Salmon 2.0 decoy index
 

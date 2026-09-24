@@ -1,6 +1,6 @@
 nextflow.enable.dsl=2 
 
-params.workpath = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/v0_rnaseq"
+params.workpath = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/test_pipeline"
 
 params.genomepath = "${params.workpath}/cattle_genome/"
 params.enhancerbed = "${params.genomepath}/bosTau9_E6.bed"
@@ -85,15 +85,19 @@ publishDir path: "${params.salmonindex}", pattern: '.'
 
 script:
 """
-    bash ${params.toolpath}/SalmonTools-master/scripts/generateDecoyTranscriptome.sh \\
-    -a $params.gtf \\
-    -g $params.fa \\
-    -j 16 \\
-    -t $params.cdna \\
-    -o temp/
-    
-    salmon index -t temp/gentrome.fa -p 16 -d temp/decoys.txt -i ${params.salmonindex} \\
-    
+    # Previous SalmonTools / mashmap decoy (Salmon 1.x; needs mashmap):
+    # bash ${params.toolpath}/SalmonTools-master/scripts/generateDecoyTranscriptome.sh \\
+    # -a $params.gtf \\
+    # -g $params.fa \\
+    # -j 16 \\
+    # -t $params.cdna \\
+    # -o temp/
+    # salmon index -t temp/gentrome.fa -p 16 -d temp/decoys.txt -i ${params.salmonindex} \\
+
+    mkdir -p ${params.salmonindex}
+    grep '^>' ${params.fa} | cut -d ' ' -f 1 | sed 's/>//' > decoys.txt
+    cat ${params.cdna} ${params.fa} > gentrome.fa
+    salmon index -t gentrome.fa -d decoys.txt -p ${params.nthreads} -i ${params.salmonindex}
 """
 }
 
@@ -211,4 +215,6 @@ workflow {
   snpdb()
   RNAstablity()
   UTR()
+  STARINDEX()
+  SALMONINDEX()
 }
