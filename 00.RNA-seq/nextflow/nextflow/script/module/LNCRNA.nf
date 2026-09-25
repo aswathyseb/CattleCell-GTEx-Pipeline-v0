@@ -13,8 +13,9 @@ path('*3.gtf')
 
 shell:
 '''
+# original: -p !{params.nthreads}
 stringtie \\
-        -p !{params.nthreads} \\
+        -p !{task.cpus} \\
         -G !{params.gtf} \\
         -o !{sampleID}.gtf \\
         -A stringtie_gene.tsv \\

@@ -18,12 +18,14 @@ script:
 
 if (reads[1]) {
 """
+# original paired: -p 10
+# original single-end: -p ${params.nthreads}
 salmon quant  \\
         -i ${params.salmonindex}  \\
         -l A \\
         -1 ${reads[0]}  \\
         -2 ${reads[1]}  \\
-        -p 10  \\
+        -p ${task.cpus}  \\
         --validateMappings \\
         -o ./  \\
 
@@ -38,7 +40,7 @@ salmon quant \\
         -i ${params.salmonindex} \\
         -l A \\
         -r ${reads[0]} \\
-        -p ${params.nthreads} \\
+        -p ${task.cpus} \\
         --validateMappings \\
         -o ./  \\
 
@@ -67,12 +69,13 @@ script:
 
 if (reads[1]) {
 """
+	# original: -p 10
 	salmon quant  \\
     	-i ${params.TEindex}  \\
     	-l A \\
     	-1 ${reads[0]}  \\
     	-2 ${reads[1]}  \\
-    	-p 10 \\
+    	-p ${task.cpus} \\
     	--validateMappings \\
     	-o ./  \\
      
@@ -81,11 +84,12 @@ if (reads[1]) {
 }else {
 """
 
+# original: -p ${params.nthreads}
 salmon quant \\
     	-i ${params.TEindex} \\
     	-l A \\
     	-r ${reads[0]} \\
-    	-p ${params.nthreads} \\
+    	-p ${task.cpus} \\
     	--validateMappings \\
     	-o ./  \\
      

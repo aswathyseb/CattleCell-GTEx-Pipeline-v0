@@ -18,11 +18,15 @@ path ('*.md5')
 
 script:
   """
-        gatk --java-options "-Xmx8G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" AddOrReplaceReadGroups -I $bam -O ${sampleID}.addrg.bam -LB ${sampleID} -PL ILLUMINA -PU ${sampleID} -SM ${sampleID} -ID ${sampleID} -FO ${sampleID} --CREATE_INDEX true
+        # gatk --java-options "-Xmx8G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" AddOrReplaceReadGroups -I $bam -O ${sampleID}.addrg.bam -LB ${sampleID} -PL ILLUMINA -PU ${sampleID} -SM ${sampleID} -ID ${sampleID} -FO ${sampleID} --CREATE_INDEX true
+        gatk --java-options "-Xmx8G -XX:ParallelGCThreads=4 -Djava.io.tmpdir=/tmp" AddOrReplaceReadGroups -I $bam -O ${sampleID}.addrg.bam -LB ${sampleID} -PL ILLUMINA -PU ${sampleID} -SM ${sampleID} -ID ${sampleID} -FO ${sampleID} --CREATE_INDEX true
 	gatk --java-options "-Xmx8G -XX:ParallelGCThreads=4 -Djava.io.tmpdir=/tmp -XX:-UseGCOverheadLimit" MarkDuplicates --spark-runner LOCAL -I ${sampleID}.addrg.bam -O ${sampleID}.mkdup.bam -M mkdup_metrics.txt --CREATE_INDEX true --VALIDATION_STRINGENCY SILENT --SORTING_COLLECTION_SIZE_RATIO 0.0025 --REMOVE_DUPLICATES true
-	gatk --java-options "-Xmx36G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" SplitNCigarReads --spark-runner LOCAL -I ${sampleID}.mkdup.bam -R ${params.fa} -O ${sampleID}.cigar.bam --create-output-bam-index true --max-reads-in-memory 1000
-	gatk --java-options "-Xmx36G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" BaseRecalibrator --spark-runner LOCAL -I ${sampleID}.cigar.bam --known-sites ${params.vcf} -O ${sampleID}.bqsr.table -R ${params.fa} 
-	gatk --java-options "-Xmx36G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" ApplyBQSR --spark-runner LOCAL -I ${sampleID}.cigar.bam --bqsr-recal-file ${sampleID}.bqsr.table -O ${sampleID}_bqsr.bam --create-output-bam-index true --create-output-bam-md5 true 
+	# gatk --java-options "-Xmx36G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" SplitNCigarReads --spark-runner LOCAL -I ${sampleID}.mkdup.bam -R ${params.fa} -O ${sampleID}.cigar.bam --create-output-bam-index true --max-reads-in-memory 1000
+	gatk --java-options "-Xmx16G -XX:ParallelGCThreads=4 -Djava.io.tmpdir=/tmp" SplitNCigarReads --spark-runner LOCAL -I ${sampleID}.mkdup.bam -R ${params.fa} -O ${sampleID}.cigar.bam --create-output-bam-index true --max-reads-in-memory 1000
+	# gatk --java-options "-Xmx36G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" BaseRecalibrator --spark-runner LOCAL -I ${sampleID}.cigar.bam --known-sites ${params.vcf} -O ${sampleID}.bqsr.table -R ${params.fa} 
+	gatk --java-options "-Xmx16G -XX:ParallelGCThreads=4 -Djava.io.tmpdir=/tmp" BaseRecalibrator --spark-runner LOCAL -I ${sampleID}.cigar.bam --known-sites ${params.vcf} -O ${sampleID}.bqsr.table -R ${params.fa} 
+	# gatk --java-options "-Xmx36G -XX:ParallelGCThreads=8 -Djava.io.tmpdir=/tmp" ApplyBQSR --spark-runner LOCAL -I ${sampleID}.cigar.bam --bqsr-recal-file ${sampleID}.bqsr.table -O ${sampleID}_bqsr.bam --create-output-bam-index true --create-output-bam-md5 true 
+	gatk --java-options "-Xmx16G -XX:ParallelGCThreads=4 -Djava.io.tmpdir=/tmp" ApplyBQSR --spark-runner LOCAL -I ${sampleID}.cigar.bam --bqsr-recal-file ${sampleID}.bqsr.table -O ${sampleID}_bqsr.bam --create-output-bam-index true --create-output-bam-md5 true 
 
   """
 }

@@ -16,20 +16,21 @@ script:
 
 if (files("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
+# original: --thread 8
 fastp   -i ${params.input}/${sampleID}/*_R1${params.suffix} \\
         -o ${sampleID}_1.clean.fastq.gz \\
         -I ${params.input}/${sampleID}/*_R2${params.suffix} \\
         -O ${sampleID}_2.clean.fastq.gz \\
 	      -f 3 -t 3 -l 36 -c -r \\
-	      -W 4 -M 15 --detect_adapter_for_pe --thread 8
+	      -W 4 -M 15 --detect_adapter_for_pe --thread ${task.cpus}
 """
 }else { 
 """
-    
+# original: --thread 8
 fastp   -i ${params.input}/${sampleID}/*${params.suffix} \
         -o ${sampleID}.clean.fastq.gz \\
 	      -f 3 -t 3 -l 36 -r \\
-	      -W 4 -M 15 --thread 8 
+	      -W 4 -M 15 --thread ${task.cpus} 
 """
        }
 

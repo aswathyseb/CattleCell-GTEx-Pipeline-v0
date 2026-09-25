@@ -21,11 +21,13 @@ path('*.tab'), emit: tab
 
 script:
 """
+# original: --runThreadN 12
+# original: samtools sort -@ 5
 STAR     --runMode alignReads \\
         --genomeDir  $params.starindex \\
         --sjdbGTFfile $params.gtf \\
         --readFilesIn $reads \\
-        --runThreadN 12 \\
+        --runThreadN ${task.cpus} \\
         --outSAMunmapped Within \\
         --readFilesCommand zcat \\
         --outSAMtype BAM Unsorted \\
@@ -38,7 +40,7 @@ STAR     --runMode alignReads \\
 	      --alignSJoverhangMin 8 \\
 	      --alignSJDBoverhangMin 1 
   
-  samtools sort -@ 5 ${sampleID}Aligned.out.bam \
+  samtools sort -@ ${task.cpus} ${sampleID}Aligned.out.bam \
 		-o ${sampleID}Aligned.sortedByCoord.out.bam
 	samtools index  *sortedByCoord.out.bam
         

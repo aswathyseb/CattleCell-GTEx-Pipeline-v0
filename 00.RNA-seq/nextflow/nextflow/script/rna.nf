@@ -1,6 +1,6 @@
 params.input = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/v0_rnaseq/data"
 params.workpath = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/v0_rnaseq"
-params.samplelist = "${params.workpath}/samplelist_demo.csv"
+params.samplelist = "${params.workpath}/samplelist.csv"
 params.genomepath = "${params.workpath}/cattle_genome/"
 params.enhancerbed = "${params.genomepath}/bosTau9_E6.bed"
 params.suffix =".fq.gz"
