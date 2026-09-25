@@ -14,7 +14,7 @@ path("*gz")
 
 script:
 
-if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
+if (files("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
 	samtools view -@ ${params.nthreads} -b -h $bam ${params.chrinfo}  > ${sampleID}chr.bam
 	samtools sort -@ ${params.nthreads} -o ${sampleID}chr.sorted.bam  ${sampleID}chr.bam

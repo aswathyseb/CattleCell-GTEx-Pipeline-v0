@@ -1,6 +1,6 @@
 nextflow.enable.dsl=2 
 
-params.workpath = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/test_pipeline"
+params.workpath = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/v0_rnaseq"
 
 params.genomepath = "${params.workpath}/cattle_genome/"
 params.enhancerbed = "${params.genomepath}/bosTau9_E6.bed"

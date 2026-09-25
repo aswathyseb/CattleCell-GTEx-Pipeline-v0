@@ -40,7 +40,7 @@ path ('*.data')
 
 script:
         
-if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
+if (files("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
        featureCounts \\
         -T 4 \\
@@ -84,7 +84,7 @@ path ('*.summary')
 
 script:
         
-if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
+if (files("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
        featureCounts \\
         -T 4 \\
@@ -144,7 +144,7 @@ path ('*.tsv')
 path ('*.summary')
 script:
         
-if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
+if (files("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
        featureCounts \\
         -T 4 \\

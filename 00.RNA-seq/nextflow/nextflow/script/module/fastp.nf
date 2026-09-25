@@ -14,7 +14,7 @@ path('*.json'), emit: json
 path('*.html'), emit: html
 script:
 
-if (file("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
+if (files("${params.input}/${sampleID}/${sampleID}*.gz").size() > 1) {
 """
 fastp   -i ${params.input}/${sampleID}/*_R1${params.suffix} \\
         -o ${sampleID}_1.clean.fastq.gz \\
