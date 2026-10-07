@@ -5,6 +5,7 @@ Understanding the genetic and molecular architecture of complex traits and adapt
 ![CattleCellGTEx](https://github.com/FarmGTEx/CattleCell-GTEx-Pipeline-v0/blob/main/CattleCellGTEx.png)
 
 ### **2. Analysis pipeline**
+
 ### This repository contains analysis pipelines used by the CattleCell-GTEx Consortium, including:
 
 :black_circle:Raw single-cell RNA-seq data processing, quality control and cell-type annotation

@@ -103,13 +103,16 @@ Sample IDs must match folder names and have no FASTQ suffix.
 
 ## 5. Download references and extra tools
 
-Edit `workpath` in `download.sh`, then:
+Edit `workpath` in `download.sh` and update the reference genome links, then run:
 
 ```bash
 bash download.sh
 ```
 
-That pulls Ensembl 108 cattle FASTA/GTF/cDNA/VCF plus the extra tools.
+This pulls `Ensembl 116` cattle FASTA/GTF/cDNA/VCF plus the extra tools.
+
+Note: The original links get Ensembl release 108 cattle FASTA/GTF/cDNA/VCF.
+       Ensembl release 108 does not include Y chromosome.
 
 ### Tool versions
 
@@ -135,6 +138,8 @@ The original readme wants `bosTau9_E6.bed` (and they mention a “file folder”
 STAR/Salmon/featureCounts do not need it. `enhancer(STAR.out.bam)` in `rna.nf` is commented out so that the work flow can continue without it.
 
 ## 6. Build indexes (`prepare.nf`)
+
+Update the refernce genome versions in `prepare.nf` and run
 
 ```bash
 pixi run nextflow run script/prepare.nf -c nextflow.config -resume -w ./work

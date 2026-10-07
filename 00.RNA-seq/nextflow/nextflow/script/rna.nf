@@ -1,14 +1,14 @@
 params.input = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/v0_rnaseq/data"
 params.workpath = "/home/azs13/apps/wansheng-liu/2026_cattle_GTEx/v0_rnaseq"
-params.samplelist = "${params.workpath}/samplelist.csv"
+params.samplelist = "${params.workpath}/samplelist_rnaseq.csv"
 params.genomepath = "${params.workpath}/cattle_genome/"
 params.enhancerbed = "${params.genomepath}/bosTau9_E6.bed"
 params.suffix =".fq.gz"
 params.nthreads = 20
 params.sampleIDs = file("$params.samplelist").readLines().collect { it.split('\t')[0] }.toSet()
 params.enhancer = "${params.genomepath}/enhancer.saf"
-params.gtf = "${params.genomepath}/Bos_taurus.ARS-UCD1.2.108.chr.gtf"
-params.fa = "${params.genomepath}/Bos_taurus.ARS-UCD1.2.dna.toplevel.fa"
+params.gtf = "${params.genomepath}/Bos_taurus.ARS-UCD2.0.116.chr.gtf"
+params.fa = "${params.genomepath}/Bos_taurus.ARS-UCD2.0.dna.toplevel.fa"
 params.vcf = "${params.genomepath}/bos_taurus.vcf"
 params.outpath = "${params.workpath}/results/"
 params.toolpath = "${params.workpath}/tools/"
