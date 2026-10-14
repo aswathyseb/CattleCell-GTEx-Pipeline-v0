@@ -11,12 +11,12 @@ SHELL := /bin/bash
 .SHELLFLAGS := -ec
 .PHONY: usage step1_preprocessing_panel step2_split_and_chunking_panel step3_imputation_per_bin step4_merge_bins step5_merge_chromosomes
 
-REF_PATH ?= v0_rnaseq/cattle_genome/imputation_panel/beagle/CattleSNPs
+REF_PATH ?= cattle_genome/imputation_panel/beagle/CattleSNPs
 VCF_PATH ?=
 CHR ?=
 BIN ?=
-BAMS ?= v0_rnaseq/UCD1.2/bqsr_bamlist
-OUT ?= v0_rnaseq/UCD1.2/vcf
+BAMS ?= UCD1.2/bqsr_bamlist
+OUT ?= UCD1.2/vcf
 
 # Step 1 uses the cattle GTEx nextflow environment.
 NF_ENV = nf-cattlegtex
