@@ -231,6 +231,12 @@ These were required before `rna.nf` would even launch on Nextflow 26.04.6:
 
 VCF calling is in `00.RNA-seq/VCF calling` and needs the CattleGTEx reference panel. Then `script/rna2.nf` uses the imputed VCF for WASP / mapping-bias correction. Skip this until part 1 finishes.
 
+## Reference versions
+
+* Original pipeline: Bos taurus UCD1.2 assembly and annotations,  Ensembl release 108
+* Cattle-GTEX-2026 : Bos taurus UCD 2.0 assembly and annotations, Ensembl release 116 
+
+
 ## Tool versions: nf-farmgtex.yml vs nf-cattlegtex.yml
 
 `nf-cattlegtex.yml` is an export of the micromamba environment `nf-cattlegtex` (`micromamba env export -n nf-cattlegtex --no-builds`), with the local prefix removed. `nf-farmgtex.yml` is the 2023 FarmGTEx lock. The table lists workflow tools whose versions differ.
