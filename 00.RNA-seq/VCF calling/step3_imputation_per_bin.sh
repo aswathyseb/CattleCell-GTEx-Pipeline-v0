@@ -1,7 +1,7 @@
 #####
 step3 Perform genotype imputation per bin using GLIMPSE2
 #####
-# cat bins.txt | while read bin
+cat bins.txt | while read bin
 
 conda activate glimpse2
 cd {params.workpath}/bqsr_bamlist
