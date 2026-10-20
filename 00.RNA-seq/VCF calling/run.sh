@@ -16,8 +16,16 @@ time make -f phased_vcf.mk step2_split_and_chunking_panel -j 12
 
 # Step3
 time make -f phased_vcf.mk step3_imputation_per_bin -j 4
+# real    2211m43.045s
+# user    97389m22.782s
+# sys     3687m51.066s
 
 
+# Step 4
+time make -f phased_vcf.mk -j 4 step4_merge_bins
+# real    23m28.056s
+# user    184m21.541s
+# sys     4m37.450s
 
 
 ## Step2 org

@@ -2,8 +2,7 @@
 # Commands match CattleCell-GTEx-Pipeline-v0/00.RNA-seq/VCF calling/step*.sh
 #
 # REF_PATH  path to the reference panel (step1, step2)
-# VCF_PATH  path to imputed VCF files (step4, step5)
-# CHR       chromosome for step4
+# VCF_PATH  path to imputed VCF files (step5)
 # BIN       imputation bin for step3
 
 SHELL := /bin/bash
@@ -17,6 +16,7 @@ CHR ?=
 BIN ?= 1_1_6025375
 BAMS ?= UCD1.2/bqsr_bamlist
 OUT ?= UCD1.2/vcf
+SCRIPT ?= nextflow/script
 
 # Step 1 uses the cattle GTEx nextflow environment.
 NF_ENV = nf-cattlegtex
@@ -39,11 +39,9 @@ endef
 usage:
 	@echo "Usage: make -f phased_vcf.mk <target>"
 	@echo "  step1_preprocessing_panel       REF_PATH=...  (make -j N)"
-	@echo "  step2_split_and_chunking_panel  REF_PATH=..."
-	@echo "  step2_split_and_chunking_panel_parallel  REF_PATH=...  (make -j N)"
-	@echo "  step3_imputation_per_bin        BIN=..."
-	@echo "  step3_imputation_per_bin_parallel   (make -j N; each job uses 12 threads)"
-	@echo "  step4_merge_bins                VCF_PATH=... CHR=..."
+	@echo "  step2_split_and_chunking_panel  REF_PATH=...  (make -j N)"
+	@echo "  step3_imputation_per_bin  (make -j N; each job uses 12 threads)"
+	@echo "  step4_merge_bins          (make -j N; one chromosome per job, 12 threads each)"
 	@echo "  step5_merge_chromosomes         VCF_PATH=..."
 
 #
@@ -115,7 +113,7 @@ BIN_BCFS = $(patsubst %,${OUT}/%.bcf,${SPLIT_BINS})
 BAMLIST = ${OUT}/bamlist.txt
 
 check3:
-	#@echo "SPLIT_BINS: ${SPLIT_BINS}"
+	@echo "SPLIT_BINS: ${SPLIT_BINS}"
 	#@echo "BIN_BCFS: ${BIN_BCFS}"
 	#@echo "BAMLIST: ${BAMLIST}"
 
@@ -133,30 +131,53 @@ ${OUT}/%.bcf: ${REF_PATH}/split/split_%.bin ${BAMLIST}
 		--output $@ --threads 12
 
 #
-# step4 Merge imputed bins into chromosome-wide VCFs and filter variants
+# step4 Merge imputed bins into chromosome-wide VCFs and filter variants.
+# One job per chromosome, so make -j runs chromosomes in parallel.
+# Bin names are <chr>_<start>_<end>.bcf, so 1_*.bcf does not match 10_*.bcf.
+# make -f phased_vcf.mk -j 2 step4_merge_bins
 #
-step4_merge_bins:
-	$(call activate,${GLIMPSE2_ENV})
-	cd ${VCF_PATH}
-	ls -1v  ${CHR}_*.bcf >  ${CHR}.txt
-	        GLIMPSE2_ligate \
-	            --input ${CHR}.txt \
-	            --output impute${CHR}.bcf \
-	            --threads 12
-	 python3 recalINFO.py --invcf impute${CHR}.bcf > recal_${CHR}.vcf
-	 bgzip -f recal_${CHR}.vcf
-	 tabix -p vcf recal_${CHR}.vcf.gz
-	 bcftools annotate -x ID,FORMAT/GP,FORMAT/DS,INFO/RAF  -O b -o recal.simplified_${CHR}.bcf recal_${CHR}.vcf --threads 12
-	 bcftools view -i 'INFO > 0.6 & AF > 0.05 & AF < 0.95' recal.simplified_${CHR}.bcf -O b -o recal.simplified_filter_${CHR}.bcf --threads 12
-	 bcftools index recal.simplified_filter_${CHR}.bcf
+BIN_FILES = $(wildcard ${OUT}/[0-9]*_[0-9]*_[0-9]*.bcf) $(wildcard ${OUT}/X_[0-9]*_[0-9]*.bcf) $(wildcard ${OUT}/MT_[0-9]*_[0-9]*.bcf)
+CHRS = $(sort $(foreach f,$(notdir ${BIN_FILES}),$(word 1,$(subst _, ,${f}))))
+CHR_FILTERED = $(patsubst %,${OUT}/recal.simplified_filter_%.bcf,${CHRS})
+
+check4:
+	@echo "CHRS: ${CHRS}"
+	@echo "n bins chr1: $(words $(wildcard ${OUT}/1_*.bcf))"
+	@echo "n bins chr10: $(words $(wildcard ${OUT}/10_*.bcf))"
+	# @echo "BIN_FILES: ${BIN_FILES}"
+	@echo "CHR_FILTERED: ${CHR_FILTERED}"
+
+step4_merge_bins: ${CHR_FILTERED}
+	@if [ -z "${CHR_FILTERED}" ]; then echo "No ${OUT}/<chr>_<start>_<end>.bcf files."; exit 1; fi
+
+# ${1} is one chromosome. The wildcard runs here, so the rule lists real files.
+define chr_merge_rule
+${OUT}/recal.simplified_filter_${1}.bcf: $(wildcard ${OUT}/${1}_*.bcf)
+	$$(call activate,${GLIMPSE2_ENV})
+	cd ${OUT}
+	ls -v ${1}_*.bcf > ${1}.txt
+	GLIMPSE2_ligate \
+	    --input ${1}.txt \
+	    --output impute${1}.bcf \
+	    --threads 12
+	python3 ${CURDIR}/${SCRIPT}/recalINFO.py --invcf impute${1}.bcf > recal_${1}.vcf
+	bgzip --threads 12 -f recal_${1}.vcf
+	tabix --threads 12 -p vcf recal_${1}.vcf.gz
+	bcftools annotate -x ID,FORMAT/GP,FORMAT/DS,INFO/RAF -O b -o recal.simplified_${1}.bcf recal_${1}.vcf.gz --threads 12
+	bcftools view -i 'INFO > 0.6 & AF > 0.05 & AF < 0.95' recal.simplified_${1}.bcf -O b -o recal.simplified_filter_${1}.bcf --threads 12
+	bcftools index recal.simplified_filter_${1}.bcf
+endef
+
+$(foreach c,${CHRS},$(eval $(call chr_merge_rule,${c})))
+
 
 #
 # step5 Merge all filtered chromosome-wide VCF files
 #
 step5_merge_chromosomes:
 	$(call activate,${GLIMPSE2_ENV})
-	cd ${VCF_PATH}
-	ls -1v   recal.simplified_filter_*.bcf >  impute.txt
+	cd ${OUT}
+	ls -v recal.simplified_filter_*.bcf >  impute.txt
 	GLIMPSE2_ligate \
 	          --input impute.txt \
 	          --output recal.final.bcf \
@@ -201,3 +222,19 @@ step3_imputation_per_bin_org:
 	GLIMPSE2_phase \
 		--bam-list ./bamlist --reference ${REF_PATH}/split/split_${BIN}.bin \
 	        --output ${OUT}/${BIN}.bcf --threads 12
+
+
+step4_merge_bins_org:
+	$(call activate,${GLIMPSE2_ENV})
+	cd ${OUT}
+	ls -v  ${CHR}_*.bcf >  ${CHR}.txt
+	        GLIMPSE2_ligate \
+	            --input ${CHR}.txt \
+	            --output impute${CHR}.bcf \
+	            --threads 12
+	 python3 ${SCRIPT}/recalINFO.py --invcf impute${CHR}.bcf > recal_${CHR}.vcf
+	 bgzip -f recal_${CHR}.vcf
+	 tabix -p vcf recal_${CHR}.vcf.gz
+	 bcftools annotate -x ID,FORMAT/GP,FORMAT/DS,INFO/RAF  -O b -o recal.simplified_${CHR}.bcf recal_${CHR}.vcf --threads 12
+	 bcftools view -i 'INFO > 0.6 & AF > 0.05 & AF < 0.95' recal.simplified_${CHR}.bcf -O b -o recal.simplified_filter_${CHR}.bcf --threads 12
+	 bcftools index recal.simplified_filter_${CHR}.bcf
