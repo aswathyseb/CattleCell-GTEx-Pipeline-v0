@@ -80,9 +80,7 @@ cpus 12
 time '12h'
 
 input:
-tuple val(sampleID),path(fq)
-tuple val(sampleID),path(toremap)
-tuple val(sampleID),path(findkeep)
+tuple val(sampleID),path(fq),path(toremap),path(findkeep)
 
 output:
 tuple val(sampleID),path('*.sorted.merge.bam'), emit: bam
@@ -93,7 +91,7 @@ script:
         --genomeDir  $params.starindex \\
         --sjdbGTFfile $params.gtf \\
         --readFilesIn $fq \\
-        --runThreadN 12 \\
+        --runThreadN ${task.cpus} \\
         --outSAMunmapped Within \\
         --readFilesCommand zcat \\
         --outSAMtype BAM Unsorted \\

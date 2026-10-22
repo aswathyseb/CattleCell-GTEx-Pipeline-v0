@@ -20,6 +20,7 @@ params.TEindex = "${params.genomepath}/indexTE/"
 params.toolpath = "${params.workpath}/tools/"
 params.nthreads = 16
 params.chr = "${params.genomepath}/chr.info"
+params.phaserbed = "${params.gtf.replaceFirst(/\\.chr\\.gtf\$/, '.phaser.bed')}"
 params.snpdb = "${params.genomepath}/snpdb"
 params.species = "cow"
 
@@ -36,6 +37,7 @@ script:
   gatk IndexFeatureFile -I ${params.vcf} 
   bgzip -c ${params.vcf} > ${params.vcf}.gz
   tabix -p vcf ${params.vcf}.gz 
+  cut -f1,2 ${params.fa}.fai > ${params.genomepath}/chromInfo.txt
 """
 
 }
@@ -47,6 +49,19 @@ script:
 """
 cat ${params.gtf}|grep -v "#" |cut -f 1|sort|uniq|tr '\n' ' ' > ${params.chr}
 
+"""
+
+}
+
+process phaserbed {
+publishDir path: "${params.genomepath}", pattern: '.'
+
+script:
+"""
+awk -F'\\t' '\$3=="gene" {
+  match(\$9, /gene_id "([^"]+)"/, a)
+  print \$1 "\\t" (\$4-1) "\\t" \$5 "\\t" a[1]
+}' ${params.gtf} > ${params.phaserbed}
 """
 
 }
@@ -212,6 +227,7 @@ script:
 workflow {
   fastadic()
   chr()
+  phaserbed()
   snpdb()
   RNAstablity()
   UTR()

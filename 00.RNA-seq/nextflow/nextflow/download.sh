@@ -19,6 +19,15 @@ genomepath="${workpath}/cattle_genome/"
     mkdir -p $genomepath
     cd $toolpath
 
+
+    # WASP
+    wget https://github.com/bmvdgeijn/WASP/archive/master.zip
+    unzip master.zip
+    cd WASP-master/snp2h5
+    make
+    cd ../..
+
+
     # The CURRENT Version (2026) of OSCA is 1.22, so we use the link for the current version.
     wget -O osca-1.22-linux-x86_64.zip \
         --user-agent='Mozilla/5.0' \

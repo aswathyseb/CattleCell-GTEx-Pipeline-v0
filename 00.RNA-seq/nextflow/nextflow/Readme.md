@@ -32,7 +32,7 @@ micromamba install -y -n nf-cattlegtex \
   -c conda-forge -c bioconda \
   nextflow star fastp fastqc multiqc salmon samtools gatk4 picard \
   bedtools bcftools htslib subread stringtie htseq regtools \
-  python=3.10 pysam r-base
+  python=3.10 pysam r-base pytables cython intervaltree
 ```
 
 Check if tools are installed properly
@@ -221,6 +221,25 @@ These were required before `rna.nf` would even launch on Nextflow 26.04.6:
 
 - `conda '/home/huicongz/...'` lines can stay. With `conda.enabled = false` they are ignored; tools come from pixi. `time` is a SLURM wall-time and is not enforced by the local executor. `memory` / `cpus` still limit how many local tasks run at once. Hardcoded `--thread 8` inside FastP does not follow `cpus`.
 
+
+Following changes are made in `rna2.nf`
+
+Nextflow 26 rejects WASP_remap because sampleID was declared three times, once on each input tuple. A process can declare that name only once.
+
+The three WASP_find channels are already keyed by sample, so rna2.nf now joins them before the call:
+
+```bash
+WASP_remap(WASP_find.out.fq.join(WASP_find.out.remapbam).join(WASP_find.out.keepbam))
+```
+
+In WASP.nf the input to WASP_remap process changed to
+```bash
+tuple val(sampleID),path(fq),path(toremap),path(findkeep)
+```
+
+
+
+
 ## Other changes in the scripts to include additional output files
 
 *`fastp.nf`: pattern: '*json' is removed from publishDir so all output files are accessible
@@ -230,6 +249,42 @@ These were required before `rna.nf` would even launch on Nextflow 26.04.6:
 ## 8. Later steps (only after part 1)
 
 VCF calling is in `00.RNA-seq/VCF calling` and needs the CattleGTEx reference panel. Then `script/rna2.nf` uses the imputed VCF for WASP / mapping-bias correction. Skip this until part 1 finishes.
+
+### Changes in WASP scripts
+
+In tools/WASP-master/mapping/snptable.py, both dtype=np.int arguments were changed to dtype=int. NumPy 2.2 no longer has np.int; int is the alias it replaced.
+
+
+Line 103, in read_h5:
+```bash
+hap_idx = np.empty(samp_idx.shape[0]*2, dtype=int)
+```
+Line 212, in get_h5_sample_indices:
+```bash
+return samp_idx_dict, np.array(samp_idx, dtype=int)
+```
+
+### Chnages in mp2.nf
+
+python2 is chnaged to python so phaser uses the python in the path
+
+```bash
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/phaser2/gene/" }, pattern: '*_phaser.gene.txt'
+
+```
+
+```bash
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/phaser2/snp/" }, pattern: '*haplotypic_counts.txt'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/phaser2/snp/" }, pattern: '*allelic_counts.txt'
+publishDir mode: 'copy', path: { "${params.outpath}/${sampleID}/phaser2/snp/" }, pattern: '*haplotypes.txt'
+```
+
+In leafcutter process
+```
+# Added leaftcutter scripts to path
+export PATH="${params.toolpath}/leafcutter-master/scripts:\$PATH"
+```
+
 
 ## Reference versions
 
