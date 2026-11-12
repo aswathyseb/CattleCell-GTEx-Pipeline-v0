@@ -28,8 +28,9 @@ time make -f phased_vcf.mk -j 4 step4_merge_bins
 # sys     4m37.450s
 
 
-## Step2 org
-time make -f phased_vcf.mk step2_split_and_chunking_panel
-real    159m4.714s
-user    167m34.313s
-sys     2m16.348s
+# rna2.nf
+time nextflow run nextflow/script/rna2.nf -c nextflow/nextflow.rna2.config -resume -w nf_rna2_work
+real    1222m32.267s
+user    17832m47.987s
+sys     936m39.922s
+
